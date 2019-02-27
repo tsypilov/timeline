@@ -176,10 +176,6 @@ module.exports = {
             use: [
               {
                 loader: require.resolve('ts-loader'),
-                options: {
-                  // disable type checker - we will use it in fork plugin
-                  transpileOnly: true,
-                },
               },
             ],
           },
@@ -203,6 +199,31 @@ module.exports = {
               require.resolve('less-loader'),
             ],
             include: paths.appSrc,
+          },
+          {
+            test: /\.jsx?$/,
+            use: [
+              {
+                loader: 'babel-loader',
+                options: {
+                  presets: ['env', 'react'],
+                  plugins: [
+                    'transform-object-rest-spread',
+                    'transform-class-properties'
+                  ]
+                }
+              }
+            ],
+            include: /retail-ui/
+          },
+          {
+            test: /\.less$/,
+            use: ['style-loader', 'css-loader', 'less-loader'],
+            include: /retail-ui/
+          },
+          {
+            test: /\.(png|woff|woff2|eot)$/,
+            use: ['file-loader']
           },
           // "file" loader makes sure those assets get served by WebpackDevServer.
           // When you `import` an asset, you get its (virtual) filename.
@@ -259,13 +280,6 @@ module.exports = {
     // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
     // You can remove this if you don't use Moment.js:
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    // Perform type checking and linting in a separate process to speed up compilation
-    new ForkTsCheckerWebpackPlugin({
-      async: false,
-      watch: paths.appSrc,
-      tsconfig: paths.appTsConfig,
-      tslint: paths.appTsLint,
-    }),
   ],
   // Some libraries import Node modules but don't use them in the browser.
   // Tell Webpack to provide empty mocks for them so importing them works.
