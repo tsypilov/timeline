@@ -98,7 +98,7 @@ class EventEditor extends React.Component<Props, State> {
             case events.eventType.transaction:
                 return "Транзакция";
             default:
-                return "";
+                return "Выбрать событие";
         }
     }
 
