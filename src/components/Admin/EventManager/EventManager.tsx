@@ -1,3 +1,4 @@
+import {element} from "prop-types";
 import React from "react";
 import EventEditor from "../EventEditor";
 import * as styles from "./EventManager.less";
@@ -7,8 +8,8 @@ interface State {
 }
 
 class EventManager extends React.Component<{}, State> {
-    constructor(state: State) {
-        super(state);
+    constructor(props: {}) {
+        super(props);
         this.state = {
             events: [],
         };
@@ -17,20 +18,22 @@ class EventManager extends React.Component<{}, State> {
     render() {
         return (
             <div className={styles.root}>
-                <EventEditor onRemove={this.onRemoveEvent} allEvents={this.state.events} onSave={this.onSaveEvent}/>
+                <EventEditor onRemove={this.handleRemoveEvent}
+                             allEvents={this.state.events}
+                             onSave={this.handleSaveEvent}/>
             </div>
         );
     }
 
-    onSaveEvent = (event: any) => {
+    handleSaveEvent = (event: any) => {
         let events = [...this.state.events];
         events.push(event);
         this.setState({events});
     }
 
-    onRemoveEvent = (id: number) => {
-        let events = [...this.state.events];
-        events = events.filter((event, idx) => idx !== id);
+    handleRemoveEvent = (id: number) => {
+        let events = this.state.events;
+        events = events.filter((event) => event.fields.id.value !== id);
         this.setState({events});
     }
 }

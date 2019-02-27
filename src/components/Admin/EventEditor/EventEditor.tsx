@@ -27,7 +27,7 @@ class EventEditor extends React.Component<Props, State> {
 
     render() {
         const {editor} = this.state;
-        const {allEvents, onSave} = this.props;
+        const {allEvents, onRemove} = this.props;
         const isDisabled = this.isEmptyField();
         const sortedEvents = this.sortEvents(allEvents);
 
@@ -62,33 +62,40 @@ class EventEditor extends React.Component<Props, State> {
                     </div>
                 </div>
 
-                {editor && <EditorCreator editor={editor} onChangeField={this.onChangeField} />}
+                {editor && <EditorCreator editor={editor} onChangeField={this.handleChangeField} />}
 
                 <div className={styles.saveButton}>
                     {editor && <Button width={150}
                                        disabled={isDisabled}
-                                       onClick={() => this.onSave(editor)}>Сохранить</Button>}
+                                       onClick={() => this.handleSave(editor)}>Сохранить</Button>}
                 </div>
 
-                {sortedEvents && sortedEvents.map((event, idx) => <Event remove={() => this.props.onRemove(idx)} key={idx} event={event} />)}
+                {sortedEvents && sortedEvents.map((event) =>
+                    <Event remove={() => onRemove(event.fields.id.value)}
+                           key={event.fields.id.value}
+                           event={event} />)}
             </div>
         );
     }
 
     sortEvents = (allEvents: services.EventScope[]) => {
         const {sort} = this.state;
-        let sortedEvents = [];
-        for (let i = 0; i < allEvents.length; i++) {
-            for (const key of Object.keys(allEvents[i].fields)) {
-                if (key === (sort === services.Sort.dateASC ? "id" : "eventType") &&
-                    sort !== services.Sort.dateDESC) {
-                    sortedEvents = allEvents.sort((a, b) => a.fields[key].value - b.fields[key].value);
-                } else if (sort === services.Sort.dateDESC && key === "id") {
-                    sortedEvents = allEvents.sort((a, b) => b.fields[key].value - a.fields[key].value);
-                }
-            }
+        let events = [...allEvents];
+
+        if (sort === services.Sort.dateDESC) {
+            events.sort((a, b) => b.fields.id.value - a.fields.id.value);
+            return events;
         }
-        return sortedEvents;
+
+        if (sort === services.Sort.dateASC) {
+            events.sort((a, b) => a.fields.id.value - b.fields.id.value);
+            return events;
+        }
+
+        if (sort === services.Sort.eventType) {
+            events.sort((a, b) => a.fields.eventType.value - b.fields.eventType.value);
+            return events;
+        }
     }
 
     eventCaption = () => {
@@ -131,7 +138,7 @@ class EventEditor extends React.Component<Props, State> {
         return false;
     }
 
-    onSave = (editor) => {
+    handleSave = (editor) => {
         const fieldId = "id";
         const fieldDate = "date";
         const date = moment(new Date()).local(true).format("DD.MM.YYYY HH:mm:ss");
@@ -143,7 +150,7 @@ class EventEditor extends React.Component<Props, State> {
         });
     }
 
-    onChangeField = (fieldName: string, value: any) => {
+    handleChangeField = (fieldName: string, value: any) => {
         let editor: services.EventScope = this.state.editor;
         editor.fields[fieldName].value = value;
         this.setState({editor});

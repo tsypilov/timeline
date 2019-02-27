@@ -9,9 +9,14 @@ interface Props {
 
 class EditorCreator extends React.Component<Props, {}> {
     render() {
+        return <div className={styles.root}>{this.editor()}</div>;
+    }
+
+    editor = () => {
         const {editor, onChangeField} = this.props;
         const fields = editor.fields;
         const result = [];
+
         for (const key of Object.keys(fields)) {
             const field = fields[key] as services.Field;
             if (field.type === services.FieldTypes.TEXT) {
@@ -61,7 +66,7 @@ class EditorCreator extends React.Component<Props, {}> {
                     </div>);
             }
         }
-        return <div className={styles.root}>{result}</div>;
+        return result;
     }
 
     captionTransaction(transactionType: events.transactionType) {

@@ -1,4 +1,6 @@
 export const root: string;
+export const rootNews: string;
+export const read: string;
 export const title: string;
 export const value: string;
 export const arrival: string;
