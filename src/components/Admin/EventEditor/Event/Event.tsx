@@ -1,7 +1,7 @@
 import React from "react";
 import * as styles from "./Event.less";
 import TrashIcon from "@skbkontur/react-icons/Trash";
-import NewsModal from "./NewsModal/NewsModal";
+import EventModal from "./EventModal/EventModal";
 import classnames from "classnames";
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 }
 
 interface State {
-    showNewsModal: boolean;
+    showEventModal: boolean;
     isRead: boolean;
 }
 
@@ -18,70 +18,77 @@ class Event extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            showNewsModal: false,
+            showEventModal: false,
             isRead: false,
         };
     }
 
     render() {
-        const {eventType, result} = this.event();
+        const {eventType, fullResult, partialResult} = this.event();
         const {remove} = this.props;
         const className = eventType === "Новость" ?
-            classnames(styles.rootNews, {[styles.read]: this.state.isRead}) :
+            classnames(styles.root, {[styles.read]: this.state.isRead}) :
             styles.root;
 
         return <div>
-            <div className={className}
-                    onClick={() => this.toggleShowNewsModal(eventType)}>
+            <div className={className} onClick={this.toggleShowModal}>
             <span className={styles.eventType}>
                 <span>{eventType}</span>
-                {eventType === "Транзакция" &&
-                <div className={styles.trash} onClick={remove}><TrashIcon/></div>}
+                <div className={styles.trash} onClick={remove}><TrashIcon/></div>
             </span>
-            {result}
+            {eventType === "Новость" ? partialResult : fullResult}
         </div>
-            {this.renderNewsModal(result)}
+            {this.renderEventModal(fullResult, eventType)}
         </div>;
     }
 
-    toggleShowNewsModal = (eventType: string) => {
-        if (eventType === "Новость") {
-            this.setState({showNewsModal: true});
-        }
+    toggleShowModal = () => {
+            this.setState({showEventModal: true});
     }
 
-    renderNewsModal = (result: any) => {
-        const {showNewsModal, isRead} = this.state;
+    renderEventModal = (result: any, eventType: string) => {
+        const {showEventModal, isRead} = this.state;
 
-        return showNewsModal && <NewsModal result={result}
-                                           toggleRead={() => this.setState({isRead: !isRead})}
-                                           isRead={isRead}
-                                           onClose={() => this.setState({showNewsModal: false})}/>;
+        return showEventModal && <EventModal result={result}
+                                             eventType={eventType}
+                                             toggleRead={() => this.setState({isRead: !isRead})}
+                                             isRead={isRead}
+                                             onClose={() => this.setState({showEventModal: false})}
+                                             onRemove={this.props.remove}/>;
     }
 
     event = () => {
         const {event} = this.props;
         const fields = event.fields;
-        let result = [];
+        let fullResult = [];
+        let title = [];
         let eventType = "";
 
         for (const key of Object.keys(fields)) {
             const field = fields[key] as services.Field;
+            if (key === "eventType") {
+                eventType = field.title;
+            }
+
+            if (event.fields.eventType.value === events.eventType.news && key === "title") {
+                title.push(
+                    <div key={key}>
+                        <span className={styles.title}>{field.value}</span>
+                    </div>);
+            }
+
             if (field.type === services.FieldTypes.TEXT ||
                 field.type === services.FieldTypes.NUMBER ||
                 key === "date") {
-                result.push(
-                    <div key={key}>
+                fullResult.push(
+                    <div key={key} className={styles.item}>
                         <span className={styles.title}>{field.name}</span>
                         <span className={styles.value}>{field.value}</span>
                     </div>);
             }
-            if (key === "eventType") {
-                eventType = field.title;
-            }
             if (field.type === services.FieldTypes.TRANSACTION) {
-                result.push(
-                    <div key={key}>
+                fullResult.push(
+                    <div key={key} className={styles.item}>
                         <span className={styles.title}>{field.name}</span>
                         {field.value === events.transactionType.arrival ?
                             <span className={styles.arrival}>Приход</span> :
@@ -89,7 +96,7 @@ class Event extends React.Component<Props, State> {
                     </div>);
             }
             if (field.type === services.FieldTypes.CURRENCY_TYPE) {
-                result.push(
+                fullResult.push(
                     <div key={key}>
                         <span className={styles.title}>{field.name}</span>
                         <span className={styles.value}>{this.currencyValue(field.value)}</span>
@@ -97,7 +104,7 @@ class Event extends React.Component<Props, State> {
             }
         }
 
-        return {result, eventType};
+        return {fullResult, partialResult: title, eventType};
     }
 
     currencyValue = (value: events.currencyType) => {

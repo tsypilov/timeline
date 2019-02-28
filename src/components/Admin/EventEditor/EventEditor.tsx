@@ -36,14 +36,7 @@ class EventEditor extends React.Component<Props, State> {
                 <div className={styles.eventDropdowns}>
                     <div>
                         <div className={styles.title}>Добавить новое событие</div>
-                        <Dropdown caption={this.eventCaption()} width={250}>
-                            <MenuItem onClick={() => this.editorSelector(events.eventType.news)}>
-                                Новость
-                            </MenuItem>
-                            <MenuItem onClick={() => this.editorSelector(events.eventType.transaction)}>
-                                Транзакция
-                            </MenuItem>
-                        </Dropdown>
+                        {this.renderEventsDropdown()}
                     </div>
 
                     <div>
@@ -98,28 +91,6 @@ class EventEditor extends React.Component<Props, State> {
         }
     }
 
-    eventCaption = () => {
-        switch (this.state.eventType) {
-            case events.eventType.news:
-                return "Новость";
-            case events.eventType.transaction:
-                return "Транзакция";
-            default:
-                return "Выбрать событие";
-        }
-    }
-
-    sortCaption = () => {
-        switch (this.state.sort) {
-            case services.Sort.eventType:
-                return "Тип события";
-            case services.Sort.dateASC:
-                return "Дата по возрастанию";
-            default:
-                return "Дата по убыванию";
-        }
-    }
-
     isEmptyField = () => {
         if (!this.state.editor) {
             return true;
@@ -154,6 +125,39 @@ class EventEditor extends React.Component<Props, State> {
         let editor: services.EventScope = this.state.editor;
         editor.fields[fieldName].value = value;
         this.setState({editor});
+    }
+
+    eventCaption = () => {
+        switch (this.state.eventType) {
+            case events.eventType.news:
+                return "Новость";
+            case events.eventType.transaction:
+                return "Транзакция";
+            default:
+                return "Выбрать событие";
+        }
+    }
+
+    sortCaption = () => {
+        switch (this.state.sort) {
+            case services.Sort.eventType:
+                return "Тип события";
+            case services.Sort.dateASC:
+                return "Дата по возрастанию";
+            default:
+                return "Дата по убыванию";
+        }
+    }
+
+    renderEventsDropdown = () => {
+        return <Dropdown caption={this.eventCaption()} width={250}>
+            <MenuItem onClick={() => this.editorSelector(events.eventType.news)}>
+                Новость
+            </MenuItem>
+            <MenuItem onClick={() => this.editorSelector(events.eventType.transaction)}>
+                Транзакция
+            </MenuItem>
+        </Dropdown>;
     }
 
     editorSelector = (eventType: events.eventType) => {
