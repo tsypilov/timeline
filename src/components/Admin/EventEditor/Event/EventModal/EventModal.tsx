@@ -23,7 +23,7 @@ class EventModal extends React.Component<Props, {}> {
                       onClose={onClose}>
             <Header>Новость</Header>
             <Body>
-            {result}
+                {result}
             </Body>
             <Footer>
                 <div className={styles.footer}>

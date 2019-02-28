@@ -1,4 +1,3 @@
-import {element} from "prop-types";
 import React from "react";
 import EventEditor from "../EventEditor";
 import * as styles from "./EventManager.less";

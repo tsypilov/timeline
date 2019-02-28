@@ -55,7 +55,7 @@ class EventEditor extends React.Component<Props, State> {
                     </div>
                 </div>
 
-                {editor && <EditorCreator editor={editor} onChangeField={this.handleChangeField} />}
+                {editor && <EditorCreator editor={editor} onChangeField={this.handleChangeField}/>}
 
                 <div className={styles.saveButton}>
                     {editor && <Button width={150}
@@ -66,7 +66,7 @@ class EventEditor extends React.Component<Props, State> {
                 {sortedEvents && sortedEvents.map((event) =>
                     <Event remove={() => onRemove(event.fields.id.value)}
                            key={event.fields.id.value}
-                           event={event} />)}
+                           event={event}/>)}
             </div>
         );
     }
